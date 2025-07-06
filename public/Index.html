@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Голосование в реальном времени</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .vote-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+        .vote-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .vote-btn:hover {
+            transform: scale(1.05);
+        }
+        #left-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #right-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        #reset-btn {
+            background-color: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            margin: 20px 0;
+        }
+        .counter {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        .random-section {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        #random-btn {
+            background-color: #9c27b0;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+        }
+        #random-result {
+            font-size: 24px;
+            margin-top: 20px;
+            min-height: 36px;
+        }
+        .voted {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .active {
+            opacity: 1;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Голосование</h1>
+    
+    <div class="counter">
+        <span id="left-count">0</span> - <span id="right-count">0</span>
+    </div>
+    
+    <div class="vote-container">
+        <button id="left-btn" class="vote-btn">Левое</button>
+        <button id="right-btn" class="vote-btn">Правое</button>
+    </div>
+    
+    <button id="reset-btn" class="vote-btn">Сбросить голоса</button>
+    
+    <div class="random-section">
+        <h2>Рандомайзер</h2>
+        <button id="random-btn" class="vote-btn">Рандом</button>
+        <div id="random-result"></div>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let hasVoted = false;
+        
+        // Элементы DOM
+        const leftBtn = document.getElementById('left-btn');
+        const rightBtn = document.getElementById('right-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const leftCount = document.getElementById('left-count');
+        const rightCount = document.getElementById('right-count');
+        const randomBtn = document.getElementById('random-btn');
+        const randomResult = document.getElementById('random-result');
+        
+        // Обработчики голосования
+        function handleVote(side) {
+            if (!hasVoted) {
+                socket.emit('vote', side);
+                hasVoted = true;
+                leftBtn.classList.remove('active');
+                rightBtn.classList.remove('active');
+                leftBtn.classList.add('voted');
+                rightBtn.classList.add('voted');
+            }
+        }
+        
+        leftBtn.addEventListener('click', () => handleVote('left'));
+        rightBtn.addEventListener('click', () => handleVote('right'));
+        
+        // Обработчик сброса
+        resetBtn.addEventListener('click', () => {
+            socket.emit('reset');
+        });
+        
+        // Обработчик рандомайзера
+        randomBtn.addEventListener('click', () => {
+            socket.emit('randomize');
+        });
+        
+        // Обновление интерфейса при изменениях
+        socket.on('update', (data) => {
+            leftCount.textContent = data.left;
+            rightCount.textContent = data.right;
+            
+            if (data.randomResult) {
+                randomResult.textContent = data.randomResult === 'left' ? 'Левое' : 'Правое';
+                randomResult.style.color = data.randomResult === 'left' ? '#4CAF50' : '#f44336';
+            } else {
+                randomResult.textContent = '';
+            }
+        });
+        
+        // Обработчик сброса состояния голосования
+        socket.on('resetVotingState', () => {
+            hasVoted = false;
+            leftBtn.classList.remove('voted');
+            rightBtn.classList.remove('voted');
+            leftBtn.classList.add('active');
+            rightBtn.classList.add('active');
+        });
+        
+        // Инициализация кнопок
+        leftBtn.classList.add('active');
+        rightBtn.classList.add('active');
+    </script>
+</body>
+</html>
