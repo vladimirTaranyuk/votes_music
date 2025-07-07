@@ -70,6 +70,27 @@
             opacity: 1;
             cursor: pointer;
         }
+        .voters-list {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .voter-item {
+            margin: 5px 0;
+            padding: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .voter-left {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .voter-right {
+            color: #f44336;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -85,6 +106,11 @@
     </div>
     
     <button id="reset-btn" class="vote-btn">Сбросить голоса</button>
+    
+    <div class="voters-list">
+        <h3>Проголосовавшие:</h3>
+        <div id="voters-container"></div>
+    </div>
     
     <div class="random-section">
         <h2>Рандомайзер</h2>
@@ -105,6 +131,7 @@
         const rightCount = document.getElementById('right-count');
         const randomBtn = document.getElementById('random-btn');
         const randomResult = document.getElementById('random-result');
+        const votersContainer = document.getElementById('voters-container');
         
         // Обработчики голосования
         function handleVote(side) {
@@ -142,6 +169,9 @@
             } else {
                 randomResult.textContent = '';
             }
+            
+            // Обновляем список проголосовавших
+            updateVotersList(data.voters);
         });
         
         // Обработчик сброса состояния голосования
@@ -151,7 +181,29 @@
             rightBtn.classList.remove('voted');
             leftBtn.classList.add('active');
             rightBtn.classList.add('active');
+            votersContainer.innerHTML = ''; // Очищаем список при сбросе
         });
+        
+        // Функция обновления списка проголосовавших
+        function updateVotersList(votersData) {
+            votersContainer.innerHTML = '';
+            
+            votersData.forEach(voter => {
+                const voterElement = document.createElement('div');
+                voterElement.className = 'voter-item';
+                
+                const nameElement = document.createElement('span');
+                nameElement.textContent = `Пользователь ${voter.id.substring(0, 6)}`;
+                
+                const voteElement = document.createElement('span');
+                voteElement.className = voter.side === 'left' ? 'voter-left' : 'voter-right';
+                voteElement.textContent = voter.side === 'left' ? 'За левое' : 'За правое';
+                
+                voterElement.appendChild(nameElement);
+                voterElement.appendChild(voteElement);
+                votersContainer.appendChild(voterElement);
+            });
+        }
         
         // Инициализация кнопок
         leftBtn.classList.add('active');
