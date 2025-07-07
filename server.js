@@ -18,7 +18,7 @@ let votes = {
 app.use(express.static(path.join(__dirname, '/public')));
 // В server.js убедитесь, что есть обработчик для корневого пути
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '/public/index.html'));
+  res.sendFile(path.join(__dirname, '/public/Index.html'));
 });
 
 
