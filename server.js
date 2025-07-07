@@ -41,6 +41,7 @@ io.on('connection', (socket) => {
         io.emit('update', votes);
         io.emit('resetVotingState'); // Сообщаем клиентам о сбросе
     });
+
     
     // Обработка рандомайзера
     socket.on('randomize', () => {
@@ -49,6 +50,9 @@ io.on('connection', (socket) => {
     });
 });
 
+    app.get('/', (req, res) => {
+       res.send('Главная страница работает!');
+});
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
