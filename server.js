@@ -15,7 +15,15 @@ let votes = {
     randomResult: null
 };
 
-app.use(express.static(path.join(__dirname, 'public')));
+// В server.js убедитесь, что есть обработчик для корневого пути
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// И для статических файлов
+app.use(express.static('public'));
+
+// app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
     // Отправляем текущее состояние при подключении
